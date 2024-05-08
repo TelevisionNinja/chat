@@ -437,33 +437,17 @@ WHISPER_OBJ += ggml-metal-embed.o
 endif
 endif
 
-libwhisper.a: $(WHISPER_OBJ)
-	$(AR) rcs libwhisper.a $(WHISPER_OBJ)
-
-libwhisper.so: $(WHISPER_OBJ)
-	$(CXX) $(CXXFLAGS) -shared -o libwhisper.so $(WHISPER_OBJ) $(LDFLAGS)
-
 clean:
-	rm -f *.o main stream command talk quantize server lsp libwhisper.a libwhisper.so
+	rm -f *.o talk.exe
 
 #
-# Examples
+# Program
 #
 
 CC_SDL=`sdl2-config --cflags --libs`
 
 SRC_COMMON     = common/common.cpp common/common-ggml.cpp common/grammar-parser.cpp
 SRC_COMMON_SDL = common/common-sdl.cpp
-
-# main: examples/main/main.cpp $(SRC_COMMON) $(WHISPER_OBJ)
-# 	$(CXX) $(CXXFLAGS) examples/main/main.cpp $(SRC_COMMON) $(WHISPER_OBJ) -o main $(LDFLAGS)
-# 	./main -h
-
-# quantize: examples/quantize/quantize.cpp $(WHISPER_OBJ) $(SRC_COMMON)
-# 	$(CXX) $(CXXFLAGS) examples/quantize/quantize.cpp $(SRC_COMMON) $(WHISPER_OBJ) -o quantize $(LDFLAGS)
-
-# server: examples/server/server.cpp $(SRC_COMMON) $(WHISPER_OBJ)
-# 	$(CXX) $(CXXFLAGS) examples/server/server.cpp $(SRC_COMMON) $(WHISPER_OBJ) -o server $(LDFLAGS) $(LWINSOCK2)
 
 talk: talk/talk.cpp talk/llama.cpp talk/unicode.cpp talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ)
 	$(CXX) $(CXXFLAGS) talk/talk.cpp talk/llama.cpp talk/unicode.cpp talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ) -o talk.exe $(CC_SDL) $(LDFLAGS)
