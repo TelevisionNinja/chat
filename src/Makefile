@@ -438,7 +438,7 @@ endif
 endif
 
 clean:
-	rm -f *.o talk.exe
+	rm -f *.o talk
 
 #
 # Program
@@ -450,4 +450,4 @@ SRC_COMMON     = common/common.cpp common/common-ggml.cpp common/grammar-parser.
 SRC_COMMON_SDL = common/common-sdl.cpp
 
 talk: common/talk/talk.cpp common/talk/llama.cpp common/talk/unicode.cpp common/talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ)
-	$(CXX) $(CXXFLAGS) common/talk/talk.cpp common/talk/llama.cpp common/talk/unicode.cpp common/talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ) -o talk.exe $(CC_SDL) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) common/talk/talk.cpp common/talk/llama.cpp common/talk/unicode.cpp common/talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ) -o talk $(CC_SDL) $(LDFLAGS)
