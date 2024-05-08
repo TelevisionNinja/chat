@@ -1,5 +1,4 @@
 if (WHISPER_SDL2)
-    # talk
     set(TARGET talk)
     add_executable(${TARGET} talk.cpp llama.cpp unicode.cpp unicode-data.cpp)
     target_include_directories(${TARGET} PRIVATE ${SDL2_INCLUDE_DIRS})

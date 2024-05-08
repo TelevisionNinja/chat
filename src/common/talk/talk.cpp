@@ -1,5 +1,5 @@
-#include "../common/common-sdl.h"
-#include "../common/common.h"
+#include "../common-sdl.h"
+#include "../common.h"
 #include "whisper.h"
 #include "llama.h"
 

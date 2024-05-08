@@ -449,5 +449,5 @@ CC_SDL=`sdl2-config --cflags --libs`
 SRC_COMMON     = common/common.cpp common/common-ggml.cpp common/grammar-parser.cpp
 SRC_COMMON_SDL = common/common-sdl.cpp
 
-talk: talk/talk.cpp talk/llama.cpp talk/unicode.cpp talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ)
-	$(CXX) $(CXXFLAGS) talk/talk.cpp talk/llama.cpp talk/unicode.cpp talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ) -o talk.exe $(CC_SDL) $(LDFLAGS)
+talk: common/talk/talk.cpp common/talk/llama.cpp common/talk/unicode.cpp common/talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ)
+	$(CXX) $(CXXFLAGS) common/talk/talk.cpp common/talk/llama.cpp common/talk/unicode.cpp common/talk/unicode-data.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ) -o talk.exe $(CC_SDL) $(LDFLAGS)
