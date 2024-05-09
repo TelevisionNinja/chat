@@ -100,5 +100,5 @@ cmake --build build --config release
 ## Windows
 
 ```bash
-./launch.sh
+./launchWindows.sh
 ```
