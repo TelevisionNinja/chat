@@ -48,45 +48,53 @@ Add the binaries folder to the environment variables
 ## Linux
 With CUDA
 ```bash
-cd ./src/
+cd ./src/llama.cpp
 
 make -j WHISPER_CUDA=1
 
-cd ..
+cd ../..
 sudo chmod +x ./launch.sh
 ```
 
 Without CUDA
 ```bash
-cd ./src/
+cd ./src/llama.cpp
 
 make -j
 
-cd ..
+cd ../..
 sudo chmod +x ./launch.sh
 ```
 
 ## MacOS
 ```bash
-cd ./src/
+cd ./src/llama.cpp
 
 make -j
 
-cd ..
+cd ../..
 sudo chmod +x ./launch.sh
 ```
 
 ## Windows
 With CUDA
 ```bash
+cd ./src/llama.cpp
+
 cmake -DWHISPER_SDL2=ON -WHISPER_CUDA=ON -B build
 cmake --build build --config release
+
+cd ../..
 ```
 
 Without CUDA
 ```bash
+cd ./src/llama.cpp
+
 cmake -DWHISPER_SDL2=ON -B build
 cmake --build build --config release
+
+cd ../..
 ```
 
 
