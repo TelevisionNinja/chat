@@ -1,9 +1,13 @@
 cmake_minimum_required (VERSION 3.5)
 
+if(POLICY CMP0079)
+    cmake_policy(SET CMP0079 NEW) # VERSION 3.13
+endif()
+
 # Allow for the creation of solution folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-project(whisper.cpp VERSION 1.5.5)
+project(chat VERSION 1)
 set(SOVERSION 1)
 
 # Add path to modules
@@ -15,12 +19,6 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(WHISPER_STANDALONE ON)
     include(GitVars)
     include(BuildTypes)
-
-    # configure project version
-    if (EXISTS "${CMAKE_SOURCE_DIR}/bindings/ios/Makefile-tmpl")
-        configure_file(${CMAKE_SOURCE_DIR}/bindings/ios/Makefile-tmpl ${CMAKE_SOURCE_DIR}/bindings/ios/Makefile @ONLY)
-    endif()
-    configure_file(${CMAKE_SOURCE_DIR}/bindings/javascript/package-tmpl.json ${CMAKE_SOURCE_DIR}/bindings/javascript/package.json @ONLY)
 else()
     set(WHISPER_STANDALONE OFF)
 endif()
@@ -53,9 +51,6 @@ option(WHISPER_ALL_WARNINGS_3RD_PARTY "whisper: enable all compiler warnings in 
 option(WHISPER_SANITIZE_THREAD        "whisper: enable thread sanitizer"    OFF)
 option(WHISPER_SANITIZE_ADDRESS       "whisper: enable address sanitizer"   OFF)
 option(WHISPER_SANITIZE_UNDEFINED     "whisper: enable undefined sanitizer" OFF)
-
-option(WHISPER_BUILD_TESTS            "whisper: build tests"    ${WHISPER_STANDALONE})
-option(WHISPER_BUILD_EXAMPLES         "whisper: build examples" ${WHISPER_STANDALONE})
 
 option(WHISPER_SDL2                   "whisper: support for libSDL2" OFF)
 
@@ -514,12 +509,12 @@ else()
             endif()
             if(NOT WHISPER_NO_AVX512)
                 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx512f -mavx512cd -mavx512vl -mavx512dq -mavx512bw")
-            endif()
-            if(NOT WHISPER_NO_AVX512_VBMI)
-                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx512vbmi")
-            endif()
-            if(NOT WHISPER_NO_AVX512_VNNI)
-                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx512vnni")
+                if(NOT WHISPER_NO_AVX512_VBMI)
+                    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx512vbmi")
+                endif()
+                if(NOT WHISPER_NO_AVX512_VNNI)
+                    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx512vnni")
+                endif()
             endif()
             if(NOT WHISPER_NO_FMA)
                 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfma")
@@ -741,21 +736,4 @@ install(TARGETS ${TARGET}
     PUBLIC_HEADER DESTINATION include
     )
 
-#
-# bindings
-#
-
-add_subdirectory(bindings)
-
-#
-# programs, examples and tests
-#
-
-if (WHISPER_BUILD_TESTS AND NOT CMAKE_JS_VERSION)
-    enable_testing()
-    add_subdirectory(tests)
-endif ()
-
-if (WHISPER_BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
+add_subdirectory(common)
