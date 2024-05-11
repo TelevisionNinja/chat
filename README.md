@@ -1,8 +1,18 @@
 # chat
 Chat with an LLM
 
+Uses:
 - whisper.cpp
 - llama.cpp
+
+
+# Clone The Repository
+```bash
+git clone https://github.com/TelevisionNinja/chat.git
+cd ./chat
+git submodule init
+git submodule update
+```
 
 
 # Install Dependencies
