@@ -63,7 +63,6 @@ cd ./src/llama.cpp
 make -j WHISPER_CUDA=1
 
 cd ../..
-sudo chmod +x ./launch.sh
 ```
 
 Without CUDA
@@ -73,7 +72,6 @@ cd ./src/llama.cpp
 make -j
 
 cd ../..
-sudo chmod +x ./launch.sh
 ```
 
 ## MacOS
@@ -83,7 +81,6 @@ cd ./src/llama.cpp
 make -j
 
 cd ../..
-sudo chmod +x ./launch.sh
 ```
 
 ## Windows
@@ -105,6 +102,15 @@ cmake -DWHISPER_SDL2=ON -B build
 cmake --build build --config release
 
 cd ../..
+```
+
+
+# Make Scripts Executable
+
+## Linux and MacOS
+```bash
+sudo chmod +x ./src/llama.cpp/common/talk/speak.sh
+sudo chmod +x ./launch.sh
 ```
 
 
