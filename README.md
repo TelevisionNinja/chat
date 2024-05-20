@@ -8,10 +8,7 @@ Uses:
 
 # Clone The Repository
 ```bash
-git clone https://github.com/TelevisionNinja/chat.git
-cd ./chat
-git submodule init
-git submodule update
+git clone --recurse-submodules https://github.com/TelevisionNinja/chat.git
 ```
 
 
