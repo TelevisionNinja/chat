@@ -17,6 +17,21 @@ git submodule update
 
 # Install Dependencies
 
+## Python
+Download and install Python
+
+### Pytorch
+Install Pytorch by following the 'Get Started' instructions from the website
+
+### RVC
+```bash
+```
+
+### Tortoise TTS
+```bash
+pip install tortoise-tts
+```
+
 ## Linux
 ```bash
 sudo apt install make gcc g++ libsdl2-dev
@@ -38,19 +53,17 @@ brew install make gcc sdl2
 ```
 
 ## Windows
-Download and install MSYS2 from the MSYS2 website
-
-Install Dependencies with
-```bash
-pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2
-```
-
-Add the binaries folder to the environment variables
-
 ### CUDA
-
 1. Download and install Visual Studio and the C++ workload from Microsoft
 2. Download and install the CUDA Toolkit from the Nvidia developer website
+
+### SDL
+1. Download the VC variant from https://github.com/libsdl-org/SDL/releases
+2. Extract to the directory ```./src/llama.cpp```
+3. Rename the extracted folder to ```SDL2```
+
+### VB-Cable
+Download and install VB-Cable by VB-Audio Software
 
 
 # Build
@@ -88,7 +101,9 @@ With CUDA
 ```bash
 cd ./src/llama.cpp
 
-cmake -DWHISPER_SDL2=ON -WHISPER_CUDA=ON -B build
+set SDL2_DIR=SDL2\cmake
+
+cmake -DWHISPER_SDL2=ON -DWHISPER_CUDA=ON -B build
 cmake --build build --config release
 
 cd ../..
@@ -97,6 +112,8 @@ cd ../..
 Without CUDA
 ```bash
 cd ./src/llama.cpp
+
+set SDL2_DIR=SDL2\cmake
 
 cmake -DWHISPER_SDL2=ON -B build
 cmake --build build --config release
@@ -122,7 +139,6 @@ sudo chmod +x ./launch.sh
 ```
 
 ## Windows
-
 ```bash
 ./launchWindows.sh
 ```
