@@ -18,8 +18,13 @@ def main():
         print('Please run the TTSServer.py file before running the TTSClient.py file')
         return
 
-    text = sys.argv[1:]
-    text = text[0]
+    filename = sys.argv[1:]
+    filename = filename[1] # first arg is voice id
+    text = ''
+
+    with open(filename,"r") as file:
+        text = file.read()
+
     text = text.encode()
 
     clientSocket.send(text)
