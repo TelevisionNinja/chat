@@ -20,7 +20,7 @@ coquiTextToSpeech = TTS("tts_models/en/ljspeech/vits").to(device)
 # coquiTextToSpeech = TTS("tts_models/multilingual/multi-dataset/bark").to(device) # doesnt work
 
 
-def textToSpeech(text, filename = 'tortoise.wav'):
+def textToSpeech(text, filename = 'tts.wav'):
     coquiTextToSpeech.tts_to_file(text=text, file_path=filename) # language="en"
 
 
@@ -51,11 +51,11 @@ class sessionThread(Thread):
         textToSpeech(text)
         print('Generation finished')
 
-        play_audio('tortoise.wav', device='CABLE Input (VB-Audio Virtual C')
+        play_audio('tts.wav', device='CABLE Input (VB-Audio Virtual C')
 
-        # rvc_convert(model_path="marine.pth",
+        # rvc_convert(model_path="model.pth",
         #             f0_up_key=0,
-        #             input_path='tortoise.wav')
+        #             input_path='tts.wav')
 
         self.socket.close()
 
