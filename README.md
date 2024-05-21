@@ -14,6 +14,15 @@ git clone --recurse-submodules https://github.com/TelevisionNinja/chat.git
 
 # Install Dependencies
 
+## eSpeak-NG
+### Linux and MacOS
+```bash
+sudo apt install espeak-ng
+```
+
+### Windows
+Download and install the msi variant from https://github.com/espeak-ng/espeak-ng/releases
+
 ## Python
 Download and install Python
 
@@ -24,9 +33,9 @@ Install Pytorch by following the 'Get Started' instructions from the website
 ```bash
 ```
 
-### Tortoise TTS
+### Python Dependencies
 ```bash
-pip install tortoise-tts
+pip install TTS sounddevice
 ```
 
 ## Linux
@@ -137,5 +146,5 @@ sudo chmod +x ./launch.sh
 
 ## Windows
 ```bash
-./launchWindows.sh
+powershell .\launch.ps1
 ```
