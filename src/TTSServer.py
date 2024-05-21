@@ -1,26 +1,32 @@
-from tortoise import api_fast
-from tortoise.utils.audio import load_voices
-import torchaudio
+import torch
+from TTS.api import TTS
+
 import socket
 from threading import Thread
 
+import sounddevice
+import soundfile
+# from rvc_infer import rvc_convert
 
-tortoiseTextToSpeech = api_fast.TextToSpeech(kv_cache=True,
-                                             half=True)
+
+device = 'cpu'
+if torch.cuda.is_available():
+    device = 'cuda'
+
+# coquiTextToSpeech = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(device)
+coquiTextToSpeech = TTS("tts_models/en/ljspeech/vits").to(device)
+# coquiTextToSpeech = TTS("tts_models/en/vctk/vits").to(device)
+# coquiTextToSpeech = TTS("tts_models/en/multi-dataset/tortoise-v2").to(device) # doesnt work
+# coquiTextToSpeech = TTS("tts_models/multilingual/multi-dataset/bark").to(device) # doesnt work
 
 
-def textToSpeech(text, filename = 'tortoise.wav', voices=['emma',
-                                                         'applejack',
-                                                         'rainbow',
-                                                         'halle',
-                                                         'jlaw',
-                                                         'mol']):
-    voice_samples, conditioning_latents = load_voices(voices)
-    pcmAudio = tortoiseTextToSpeech.tts(text=text, voice_samples=voice_samples, conditioning_latents=conditioning_latents)
+def textToSpeech(text, filename = 'tortoise.wav'):
+    coquiTextToSpeech.tts_to_file(text=text, file_path=filename) # language="en"
 
-    torchaudio.save(uri=filename,
-                    src=pcmAudio.squeeze(0).cpu(),
-                    sample_rate=24000)
+
+def play_audio(filename, device=None):
+    data, samplerate = soundfile.read(filename)
+    sounddevice.play(data, samplerate, blocking=True, device=device)
 
 
 ip = '127.0.0.1'
@@ -40,14 +46,18 @@ class sessionThread(Thread):
         self.socket = socket
 
     def run(self):
-        try:
-            text = self.socket.recv(bufferSize).decode()
+        text = self.socket.recv(bufferSize).decode()
 
-            textToSpeech(text)
+        textToSpeech(text)
+        print('Generation finished')
 
-            print('Generation finished')
-        except:
-            print('connection errored out')
+        play_audio('tortoise.wav', device='CABLE Input (VB-Audio Virtual C')
+
+        # rvc_convert(model_path="marine.pth",
+        #             f0_up_key=0,
+        #             input_path='tortoise.wav')
+
+        self.socket.close()
 
 
 def main():
