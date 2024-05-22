@@ -2,3 +2,4 @@
 /src/llama.cpp/build/
 sessionfile
 tts.wav
+/venv/

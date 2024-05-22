@@ -24,7 +24,17 @@ sudo apt install espeak-ng
 Download and install the msi variant from https://github.com/espeak-ng/espeak-ng/releases
 
 ## Python
-Download and install Python
+### Python Install
+#### Linux and MacOS
+1. Download and install Python 3.11
+2. cd into the repository ```cd ./chat``
+3. Create the virtual environment ```python -m venv venv```
+4. Activate the virtual environment ```source ./venv/bin/activate```
+5. Install the Python Dependencies below into the virtual environment
+
+#### Windows
+Download and install Python 3.11
+
 
 ### Pytorch
 Install Pytorch by following the 'Get Started' instructions from the website
