@@ -4,6 +4,8 @@ from TTS.api import TTS
 import socket
 from threading import Thread
 
+import platform
+
 import sounddevice
 import soundfile
 # from rvc_infer import rvc_convert
@@ -39,6 +41,10 @@ serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 serverSocket.bind(address)
 serverSocket.listen(1)
 
+audioDevice = None
+if platform.system() == 'Windows':
+    audioDevice = 'CABLE Input (VB-Audio Virtual C'
+
 
 class sessionThread(Thread):
     def __init__(self, socket):
@@ -51,7 +57,7 @@ class sessionThread(Thread):
         textToSpeech(text)
         print('Generation finished')
 
-        play_audio('tts.wav', device='CABLE Input (VB-Audio Virtual C')
+        play_audio('tts.wav', device=audioDevice)
 
         # rvc_convert(model_path="model.pth",
         #             f0_up_key=0,
