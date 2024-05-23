@@ -11,6 +11,7 @@ import soundfile
 import pyvts
 import asyncio
 import numpy
+import time
 
 
 device = 'cpu'
@@ -39,6 +40,44 @@ plugin_info = {
 }
 vts = pyvts.vts(plugin_info=plugin_info)
 
+
+async def animate_mouth(filename):
+    parameter = 'AIVoiceVolume'
+    overlap = 512
+    data, samplerate = soundfile.read(filename)
+
+    blockDuration = 0.01 # seconds
+    blocksize = int(blockDuration * samplerate + overlap)
+
+    # blocksize = 1024
+    # blockDuration = (blocksize - overlap) / samplerate # seconds
+
+    blockGenerator = soundfile.blocks(filename, blocksize=blocksize, overlap=overlap)
+    levels = [numpy.sqrt(numpy.mean(block * block)) for block in blockGenerator] # rms
+
+    await vts.connect()
+    await vts.request_authenticate()  # use token
+
+    start_time = time.time()
+    end_time = len(levels) * blockDuration + start_time
+    play_audio(data, samplerate)
+
+    while end_time > time.time():
+        current_block = int((time.time() - start_time) / blockDuration)
+        current_level = levels[current_block]
+
+        request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=current_level)
+        await vts.request(request)
+
+        sleep_time = (current_block + 1) * blockDuration + start_time - time.time()
+        if sleep_time > 0: # dont sleep if request took longer than block duration
+            await asyncio.sleep(sleep_time)
+
+    request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=0)
+    await vts.request(request)
+    await vts.close()
+
+
 ip = '127.0.0.1'
 port = 12000
 address = (ip, port)
@@ -56,34 +95,6 @@ class sessionThread(Thread):
         self.socket = socket
 
 
-    async def animate_mouth(self, filename):
-        parameter = 'AIVoiceVolume'
-        overlap = 512
-        data, samplerate = soundfile.read(filename)
-
-        blockDuration = 0.01 # seconds
-        blocksize = int(blockDuration * samplerate + overlap)
-
-        # blocksize = 1024
-        # blockDuration = (blocksize - overlap) / samplerate # seconds
-        blockGenerator = soundfile.blocks(filename, blocksize=blocksize, overlap=overlap)
-
-        await vts.connect()
-        await vts.request_authenticate()  # use token
-
-        play_audio(data, samplerate)
-
-        for block in blockGenerator:
-            level = numpy.sqrt(numpy.mean(block * block)) # rms
-            request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=level)
-            await vts.request(request)
-            await asyncio.sleep(blockDuration)
-
-        request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=0)
-        await vts.request(request)
-        await vts.close()
-
-
     def run(self):
         text = self.socket.recv(bufferSize).decode()
         filename = 'tts.wav'
@@ -95,7 +106,7 @@ class sessionThread(Thread):
         #             f0_up_key=0,
         #             input_path='tts.wav')
 
-        asyncio.run(self.animate_mouth(filename))
+        asyncio.run(animate_mouth(filename))
 
         self.socket.close()
 
