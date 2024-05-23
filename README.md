@@ -31,7 +31,7 @@ Download and install the msi variant from https://github.com/espeak-ng/espeak-ng
 #### Linux and MacOS
 1. Download and install Python 3.11
 2. cd into the repository ```cd ./chat``
-3. Create the virtual environment ```python -m venv venv```
+3. Create the virtual environment ```python3.11 -m venv venv```
 4. Activate the virtual environment ```source ./venv/bin/activate```
 5. Install the Python Dependencies below into the virtual environment
 
@@ -116,6 +116,8 @@ cd ../..
 ```
 
 ## Windows
+Use ```Command Prompt```
+
 With CUDA
 ```bash
 cd ./src/llama.cpp
