@@ -164,4 +164,6 @@ sudo chmod +x ./launch.sh
     powershell .\launch.ps1
     ```
 
-3. Go to the model settings and change the input to ```AIVoiceVolume``` in the ```Mouth Open``` section
+3. Click on the allow button for the plugin to function
+
+4. Go to the model settings and change the input to ```AIVoiceVolume``` in the ```Mouth Open``` section
