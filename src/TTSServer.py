@@ -18,11 +18,8 @@ device = 'cpu'
 if torch.cuda.is_available():
     device = 'cuda'
 
-# coquiTextToSpeech = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to(device)
 coquiTextToSpeech = TTS('tts_models/en/ljspeech/vits').to(device)
-# coquiTextToSpeech = TTS('tts_models/en/vctk/vits').to(device)
-# coquiTextToSpeech = TTS('tts_models/en/multi-dataset/tortoise-v2').to(device) # doesnt work
-# coquiTextToSpeech = TTS('tts_models/multilingual/multi-dataset/bark').to(device) # doesnt work
+# coquiTextToSpeech = TTS('tts_models/en/vctk/vits').to(device) # speaker='p225'
 
 
 def textToSpeech(text, filename = 'tts.wav'):
