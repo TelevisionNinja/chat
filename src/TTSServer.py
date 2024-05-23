@@ -4,32 +4,40 @@ from TTS.api import TTS
 import socket
 from threading import Thread
 
-import platform
-
 import sounddevice
 import soundfile
 # from rvc_infer import rvc_convert
+
+import pyvts
+import asyncio
+import numpy
 
 
 device = 'cpu'
 if torch.cuda.is_available():
     device = 'cuda'
 
-# coquiTextToSpeech = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(device)
-coquiTextToSpeech = TTS("tts_models/en/ljspeech/vits").to(device)
-# coquiTextToSpeech = TTS("tts_models/en/vctk/vits").to(device)
-# coquiTextToSpeech = TTS("tts_models/en/multi-dataset/tortoise-v2").to(device) # doesnt work
-# coquiTextToSpeech = TTS("tts_models/multilingual/multi-dataset/bark").to(device) # doesnt work
+# coquiTextToSpeech = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to(device)
+coquiTextToSpeech = TTS('tts_models/en/ljspeech/vits').to(device)
+# coquiTextToSpeech = TTS('tts_models/en/vctk/vits').to(device)
+# coquiTextToSpeech = TTS('tts_models/en/multi-dataset/tortoise-v2').to(device) # doesnt work
+# coquiTextToSpeech = TTS('tts_models/multilingual/multi-dataset/bark').to(device) # doesnt work
 
 
 def textToSpeech(text, filename = 'tts.wav'):
-    coquiTextToSpeech.tts_to_file(text=text, file_path=filename) # language="en"
+    coquiTextToSpeech.tts_to_file(text=text, file_path=filename)
 
 
-def play_audio(filename, device=None):
-    data, samplerate = soundfile.read(filename)
-    sounddevice.play(data, samplerate, blocking=True, device=device)
+def play_audio(data, samplerate, device=None):
+    sounddevice.play(data, samplerate, blocking=False, device=device)
 
+
+plugin_info = {
+    'plugin_name': 'AI Vtuber Voice',
+    'developer': 'TelevisionNinja',
+    'authentication_token_path': './token.txt'
+}
+vts = pyvts.vts(plugin_info=plugin_info)
 
 ip = '127.0.0.1'
 port = 12000
@@ -41,32 +49,64 @@ serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 serverSocket.bind(address)
 serverSocket.listen(1)
 
-audioDevice = None
-if platform.system() == 'Windows':
-    audioDevice = 'CABLE Input (VB-Audio Virtual C'
-
 
 class sessionThread(Thread):
     def __init__(self, socket):
         Thread.__init__(self)
         self.socket = socket
 
+
+    async def animate_mouth(self, filename):
+        parameter = 'AIVoiceVolume'
+        overlap = 512
+        data, samplerate = soundfile.read(filename)
+
+        blockDuration = 0.01 # seconds
+        blocksize = int(blockDuration * samplerate + overlap)
+
+        # blocksize = 1024
+        # blockDuration = (blocksize - overlap) / samplerate # seconds
+        blockGenerator = soundfile.blocks(filename, blocksize=blocksize, overlap=overlap)
+
+        await vts.connect()
+        await vts.request_authenticate()  # use token
+
+        play_audio(data, samplerate)
+
+        for block in blockGenerator:
+            level = numpy.sqrt(numpy.mean(block * block)) # rms
+            request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=level)
+            await vts.request(request)
+            await asyncio.sleep(blockDuration)
+
+        request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=0)
+        await vts.request(request)
+        await vts.close()
+
+
     def run(self):
         text = self.socket.recv(bufferSize).decode()
+        filename = 'tts.wav'
 
-        textToSpeech(text)
+        textToSpeech(text, filename=filename)
         print('Generation finished')
 
-        play_audio('tts.wav', device=audioDevice)
-
-        # rvc_convert(model_path="model.pth",
+        # rvc_convert(model_path='model.pth',
         #             f0_up_key=0,
         #             input_path='tts.wav')
+
+        asyncio.run(self.animate_mouth(filename))
 
         self.socket.close()
 
 
-def main():
+async def main():
+    await vts.connect()
+    await vts.request_authenticate_token()  # get token
+    await vts.request_authenticate()  # use token
+    await vts.request(vts.vts_request.requestCustomParameter('AIVoiceVolume'))
+    await vts.close()
+
     print('Ready')
 
     while True:
@@ -78,4 +118,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
