@@ -14,6 +14,9 @@ git clone --recurse-submodules https://github.com/TelevisionNinja/chat.git
 
 # Install Dependencies
 
+## VTube Studio
+Download and install VTube Studio from Steam
+
 ## eSpeak-NG
 ### Linux and MacOS
 ```bash
@@ -148,13 +151,17 @@ sudo chmod +x ./launch.sh
 
 
 # Run
+1. Launch VTube Studio
 
-## Linux and MacOS
-```bash
-./launch.sh
-```
+2. Run the launch script
+    ## Linux and MacOS
+    ```bash
+    ./launch.sh
+    ```
 
-## Windows
-```bash
-powershell .\launch.ps1
-```
+    ## Windows
+    ```bash
+    powershell .\launch.ps1
+    ```
+
+3. Go to the model settings and change the input to ```AIVoiceVolume``` in the ```Mouth Open``` section
