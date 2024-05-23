@@ -45,7 +45,7 @@ Install Pytorch by following the 'Get Started' instructions from the website
 
 ### Python Dependencies
 ```bash
-pip install TTS sounddevice
+pip install TTS sounddevice pyvts
 ```
 
 ## Linux
