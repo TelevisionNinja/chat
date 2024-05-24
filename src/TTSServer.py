@@ -15,15 +15,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 
-device = 'cpu'
-if torch.cuda.is_available():
-    device = 'cuda'
-
-coquiTextToSpeech = TTS('tts_models/en/ljspeech/vits').to(device)
-# coquiTextToSpeech = TTS('tts_models/en/vctk/vits').to(device) # speaker='p225'
-
-
-def textToSpeech(text, filename = 'tts.wav'):
+def textToSpeech(coquiTextToSpeech, text, filename = 'tts.wav'):
     coquiTextToSpeech.tts_to_file(text=text, file_path=filename)
 
 
@@ -31,19 +23,11 @@ def play_audio(data, samplerate, device=None):
     sounddevice.play(data, samplerate, blocking=False, device=device)
 
 
-plugin_info = {
-    'plugin_name': 'AI Vtuber Voice',
-    'developer': 'TelevisionNinja',
-    'authentication_token_path': './token.txt'
-}
-vts = pyvts.vts(plugin_info=plugin_info)
-
-
 def rms(block):
     return numpy.sqrt(numpy.mean(block * block))
 
 
-async def animate_mouth(filename):
+async def animate_mouth(vts, filename):
     connect_task = asyncio.create_task(vts.connect())
 
     #---------------------------------------------
@@ -99,40 +83,62 @@ async def animate_mouth(filename):
     await vts.close()
 
 
-ip = '127.0.0.1'
-port = 12000
-address = (ip, port)
-bufferSize = 1024
-
-# use tcp
-serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-serverSocket.bind(address)
-serverSocket.listen(1)
-
-
 class sessionThread(Thread):
-    def __init__(self, socket):
+    def __init__(self, socket, bufferSize, coquiTextToSpeech, vts):
         Thread.__init__(self)
         self.socket = socket
+        self.coquiTextToSpeech = coquiTextToSpeech
+        self.vts = vts
+        self.bufferSize = bufferSize
 
 
     def run(self):
-        text = self.socket.recv(bufferSize).decode()
+        text = self.socket.recv(self.bufferSize).decode()
         filename = 'tts.wav'
 
-        textToSpeech(text, filename=filename)
+        textToSpeech(self.coquiTextToSpeech, text, filename=filename)
         print('Generation finished')
 
         # rvc_convert(model_path='model.pth',
         #             f0_up_key=0,
         #             input_path='tts.wav')
 
-        asyncio.run(animate_mouth(filename))
+        asyncio.run(animate_mouth(self.vts, filename))
 
         self.socket.close()
 
 
 async def main():
+    device = 'cpu'
+    if torch.cuda.is_available():
+        device = 'cuda'
+
+    coquiTextToSpeech = TTS('tts_models/en/ljspeech/vits').to(device)
+    # coquiTextToSpeech = TTS('tts_models/en/vctk/vits').to(device) # speaker='p225'
+
+    #---------------------------------------------
+
+    plugin_info = {
+        'plugin_name': 'AI Vtuber Voice',
+        'developer': 'TelevisionNinja',
+        'authentication_token_path': './token.txt'
+    }
+    vts = pyvts.vts(plugin_info=plugin_info)
+
+    #---------------------------------------------
+
+    ip = '127.0.0.1'
+    port = 12000
+    address = (ip, port)
+    bufferSize = 1024
+
+    # use tcp
+    serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+    serverSocket.bind(address)
+    serverSocket.listen(1)
+
+    #---------------------------------------------
+
     await vts.connect()
     await vts.request_authenticate_token()  # get token
     await vts.request_authenticate()  # use token
@@ -146,7 +152,7 @@ async def main():
         connectionSocket, addr = serverSocket.accept()
 
         # handle current connection
-        sessionThread(connectionSocket).start()
+        sessionThread(connectionSocket, bufferSize, coquiTextToSpeech, vts).start()
 
 
 if __name__ == '__main__':
