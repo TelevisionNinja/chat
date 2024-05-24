@@ -12,6 +12,7 @@ import pyvts
 import asyncio
 import numpy
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 
 device = 'cpu'
@@ -38,10 +39,27 @@ plugin_info = {
 vts = pyvts.vts(plugin_info=plugin_info)
 
 
+def rms(block):
+    return numpy.sqrt(numpy.mean(block * block))
+
+
 async def animate_mouth(filename):
+    connect_task = asyncio.create_task(vts.connect())
+
+    #---------------------------------------------
+    # read audio file while waiting for connection
+
     parameter = 'AIVoiceVolume'
     overlap = 512
     data, samplerate = soundfile.read(filename)
+
+    #---------------------------------------------
+
+    await connect_task
+    authenticate_task = asyncio.create_task(vts.request_authenticate()) # use token
+
+    #---------------------------------------------
+    # read audio file while waiting for authentication
 
     blockDuration = 0.01 # seconds
     blocksize = int(blockDuration * samplerate + overlap)
@@ -50,10 +68,16 @@ async def animate_mouth(filename):
     # blockDuration = (blocksize - overlap) / samplerate # seconds
 
     blockGenerator = soundfile.blocks(filename, blocksize=blocksize, overlap=overlap)
-    levels = [numpy.sqrt(numpy.mean(block * block)) for block in blockGenerator] # rms
+    levels = None
+    with ThreadPoolExecutor() as executor:
+        levels = list(executor.map(rms, blockGenerator))
 
-    await vts.connect()
-    await vts.request_authenticate()  # use token
+    #---------------------------------------------
+
+    await authenticate_task
+
+    #---------------------------------------------
+    # play audio and send audio levels simultaneously
 
     start_time = time.time()
     end_time = len(levels) * blockDuration + start_time
