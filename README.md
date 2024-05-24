@@ -1,9 +1,14 @@
 # chat
-Chat with an LLM
+Chat with an AI Vtuber
+
+![llm](./images/llm.png)
+![tts](./images/tts.png)
 
 Uses:
 - whisper.cpp
 - llama.cpp
+- Coqui TTS
+- VTube Studio
 
 
 # Clone The Repository
