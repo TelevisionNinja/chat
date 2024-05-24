@@ -118,15 +118,6 @@ async def main():
 
     #---------------------------------------------
 
-    plugin_info = {
-        'plugin_name': 'AI Vtuber Voice',
-        'developer': 'TelevisionNinja',
-        'authentication_token_path': './token.txt'
-    }
-    vts = pyvts.vts(plugin_info=plugin_info)
-
-    #---------------------------------------------
-
     ip = '127.0.0.1'
     port = 12000
     address = (ip, port)
@@ -139,11 +130,22 @@ async def main():
 
     #---------------------------------------------
 
+    plugin_info = {
+        'plugin_name': 'AI Vtuber Voice',
+        'developer': 'TelevisionNinja',
+        'authentication_token_path': './token.txt'
+    }
+    vts = pyvts.vts(plugin_info=plugin_info)
+
+    #---------------------------------------------
+
     await vts.connect()
     await vts.request_authenticate_token()  # get token
     await vts.request_authenticate()  # use token
     await vts.request(vts.vts_request.requestCustomParameter('AIVoiceVolume'))
     await vts.close()
+
+    #---------------------------------------------
 
     print('Ready')
 
