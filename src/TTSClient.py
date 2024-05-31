@@ -6,12 +6,11 @@ ip = '127.0.0.1'
 port = 12000
 address = (ip, port)
 bufferSize = 1024
+# use tcp
+clientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
 
 def main():
-    # use tcp
-    clientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-
     try:
         clientSocket.connect(address)
     except:
@@ -22,7 +21,7 @@ def main():
     filename = filename[1] # first arg is voice id
     text = ''
 
-    with open(filename,"r") as file:
+    with open(filename, 'r') as file:
         text = file.read()
 
     text = text.encode()
