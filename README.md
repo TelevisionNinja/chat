@@ -1,6 +1,8 @@
 # chat
 Chat with an AI Vtuber
 
+![vtube](./images/vtube.png)
+![plugin](./images/plugin.png)
 ![llm](./images/llm.png)
 ![tts](./images/tts.png)
 
