@@ -23,38 +23,29 @@ def play_audio(data, samplerate, device=None):
     sounddevice.play(data, samplerate, blocking=False, device=device)
 
 
-def rms(block):
+def rms(index, blocksize, blocks):
+    block = blocks[index:index + blocksize]
     return numpy.sqrt(numpy.mean(block * block))
 
 
 async def animate_mouth(vts, filename):
-    connect_task = asyncio.create_task(vts.connect())
-
-    #---------------------------------------------
-    # read audio file while waiting for connection
-
-    parameter = 'AIVoiceVolume'
-    overlap = 512
-    data, samplerate = soundfile.read(filename)
-
-    #---------------------------------------------
-
-    await connect_task
     authenticate_task = asyncio.create_task(vts.request_authenticate()) # use token
 
     #---------------------------------------------
-    # read audio file while waiting for authentication
+    # read audio file and compute rms while waiting for authentication
 
-    blockDuration = 0.01 # seconds
+    parameter = 'AIVoiceVolume'
+    overlap = 0
+    data, samplerate = soundfile.read(filename)
+
+    blockDuration = 0.025 # seconds
     blocksize = int(blockDuration * samplerate + overlap)
 
     # blocksize = 1024
     # blockDuration = (blocksize - overlap) / samplerate # seconds
 
-    blockGenerator = soundfile.blocks(filename, blocksize=blocksize, overlap=overlap)
-    levels = None
-    with ThreadPoolExecutor() as executor:
-        levels = list(executor.map(rms, blockGenerator))
+    executor = ThreadPoolExecutor()
+    levels = [executor.submit(rms, i, blocksize, data) for i in range(0, len(data), blocksize - overlap)]
 
     #---------------------------------------------
 
@@ -68,19 +59,45 @@ async def animate_mouth(vts, filename):
     play_audio(data, samplerate)
 
     while end_time > time.time():
-        current_block = int((time.time() - start_time) / blockDuration)
-        current_level = levels[current_block]
+        current_time = time.time()
+        current_block = int((current_time - start_time) / blockDuration)
+        next_time = (current_block + 1) * blockDuration + start_time
+        sleep_time = next_time - current_time
 
-        request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=current_level)
-        await vts.request(request)
+        try:
+            current_level = levels[current_block].result(timeout=sleep_time)
 
-        sleep_time = (current_block + 1) * blockDuration + start_time - time.time()
-        if sleep_time > 0: # dont sleep if request took longer than block duration
-            await asyncio.sleep(sleep_time)
+            request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=current_level)
+            await vts.request(request)
 
+            sleep_time = next_time - time.time()
+            if sleep_time > 0: # dont sleep if request took longer than block duration
+                await asyncio.sleep(sleep_time)
+        except:
+            continue
+
+    executor.shutdown(wait=False, cancel_futures=True)
     request = vts.vts_request.requestSetParameterValue(parameter=parameter, value=0)
     await vts.request(request)
     await vts.close()
+
+
+async def generate_and_speak(coquiTextToSpeech, text, vts, filename):
+    connect_task = asyncio.create_task(vts.connect())
+
+    #---------------------------------------------
+    # generate wav while waiting for connection
+
+    textToSpeech(coquiTextToSpeech, text, filename=filename)
+    print('Generation finished')
+
+    #---------------------------------------------
+
+    await connect_task
+
+    #---------------------------------------------
+
+    await animate_mouth(vts, filename)
 
 
 class sessionThread(Thread):
@@ -96,14 +113,11 @@ class sessionThread(Thread):
         text = self.socket.recv(self.bufferSize).decode()
         filename = 'tts.wav'
 
-        textToSpeech(self.coquiTextToSpeech, text, filename=filename)
-        print('Generation finished')
-
         # rvc_convert(model_path='model.pth',
         #             f0_up_key=0,
         #             input_path='tts.wav')
 
-        asyncio.run(animate_mouth(self.vts, filename))
+        asyncio.run(generate_and_speak(self.coquiTextToSpeech, text, self.vts, filename))
 
         self.socket.close()
 
