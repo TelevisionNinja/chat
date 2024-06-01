@@ -5,8 +5,6 @@ import sys
 ip = '127.0.0.1'
 port = 12000
 address = (ip, port)
-bufferSize = 1024
-# use tcp
 clientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
 

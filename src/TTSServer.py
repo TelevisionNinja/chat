@@ -137,7 +137,6 @@ async def main():
     address = (ip, port)
     bufferSize = 1024
 
-    # use tcp
     serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
     serverSocket.bind(address)
     serverSocket.listen(1)
