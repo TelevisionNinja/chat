@@ -35,13 +35,13 @@ async def animate_mouth(vts, filename):
     # read audio file and compute rms while waiting for authentication
 
     parameter = 'AIVoiceVolume'
-    overlap = 0
+    overlap = 0 # samples
     data, samplerate = soundfile.read(filename)
 
     blockDuration = 0.025 # seconds
     blocksize = int(blockDuration * samplerate + overlap)
 
-    # blocksize = 1024
+    # blocksize = 1024 # samples
     # blockDuration = (blocksize - overlap) / samplerate # seconds
 
     executor = ThreadPoolExecutor()
