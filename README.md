@@ -99,7 +99,7 @@ With CUDA
 ```bash
 cd ./src/llama.cpp
 
-make -j WHISPER_CUDA=1
+make -j GGML_CUDA=1
 
 cd ../..
 ```
@@ -131,7 +131,7 @@ cd ./src/llama.cpp
 
 set SDL2_DIR=SDL2\cmake
 
-cmake -DWHISPER_SDL2=ON -DWHISPER_CUDA=ON -B build
+cmake -DWHISPER_SDL2=ON -DGGML_CUDA=ON -B build
 cmake --build build --config release
 
 cd ../..
