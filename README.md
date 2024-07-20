@@ -132,7 +132,7 @@ cd ./src/llama.cpp
 set SDL2_DIR=SDL2\cmake
 
 cmake -DWHISPER_SDL2=ON -DGGML_CUDA=ON -B build
-cmake --build build --config release
+cmake --build build --config release -j
 
 cd ../..
 ```
@@ -144,7 +144,7 @@ cd ./src/llama.cpp
 set SDL2_DIR=SDL2\cmake
 
 cmake -DWHISPER_SDL2=ON -B build
-cmake --build build --config release
+cmake --build build --config release -j
 
 cd ../..
 ```
